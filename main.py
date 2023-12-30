@@ -107,7 +107,6 @@ def print_hi(name):
     mapping_dict = {
         # '': {1: 'No', 2: 'No', 3: 'Yes', 4: 'Yes', 7: 'missing', 8: 'missing', 9: 'missing'},
         # '': {1: '', 2: '', 3: '', 4: '', 7: '', 8: '', 9: ''},
-
         'URBRRL': {1: 4, 2: 3, 3: 2, 4: 1}, # 'URBRRL': {1: 'Large central metro', 2: 'Large fringe metro', 3: 'Medium and small metro', 4: 'Nonmetropolitan'},
         'REGION': {1: 'Northeast', 2: 'Midwest', 3: 'South', 4: 'West'},
         'ASTATNEW': {1: 'Completed', 5: 'Sufficient Partial'},
@@ -128,7 +127,6 @@ def print_hi(name):
         'DEPFREQ_A': {1: 4, 2: 3, 3: 2, 4: 1, 5: 0, 7: np.nan,  9: np.nan}, # 1:Daily, Weekly, Monthly, afew year, never
         'DEPMED_A': {1: 1, 2: 0, 7: np.nan, 9: np.nan}, # Y/N
         'PHQCAT_A': {8: np.nan}, # 1: none, 2: mild, 3: moderate, etc.
-        #20
         'GADCAT_A': {8: np.nan}, # 1: none, 2: mild, 3: moderate, etc.
         'SMKCIGST_A': {1: 3, 2: 2, 3: 1, 4: 0, 5: np.nan,9: np.nan}, # 1:everyday, 2: someday, 4: never
         # 'FAMINCTC_A': {1: '', 2: '', 3: '', 4: '', 5: '', 7: np.nan, 8: np.nan, 9: np.nan}, # Numeric
@@ -139,7 +137,6 @@ def print_hi(name):
         'MAXEDUC_A': { 'Unknown': np.nan},
         'NOTCOV_A': {1: 1, 2: 0, 9: np.nan}, # 1: not cov, 2: covered (health)
         'MEDICARE_A': {1: 1, 2: 1, 3: 0, 7: np.nan, 8: np.nan, 9: np.nan}, # 1:Yes, 2:yes no info, 3: no,
-        #30
         'MEDICAID_A': {1: 1, 2: 1, 3: 0, 7: np.nan, 8: np.nan, 9: np.nan}, # 1:Yes, 2:yes no info, 3: no,
         'PRIVATE_A': {1: 1, 2: 1, 3: 0, 7: np.nan, 8: np.nan, 9: np.nan}, # 1:Yes, 2:yes no info, 3: no,
         'CHIP_A': {1: 1, 2: 1, 3: 0, 7: np.nan, 8: np.nan, 9: np.nan}, # 1:Yes, 2:yes no info, 3: no,
@@ -156,7 +153,6 @@ def print_hi(name):
         'RXDG12M_A':  {1: 1, 2: 0, 7: np.nan, 8: np.nan, 9: np.nan}, # 1:Yes, 2:No,
         'MHTHDLY_A':  {1: 1, 2: 0, 7: np.nan, 8: np.nan, 9: np.nan}, # 1:Yes, 2:No,
         'MHTHND_A': {1: 1, 2: 0, 7: np.nan, 8: np.nan, 9: np.nan}, # 1:Yes, 2:No,
-        #40
         'EMPWRKLSWK_A': {1: 1, 2: 0, 7: np.nan, 8: np.nan, 9: np.nan}, # 1:Yes, 2:No,
         'PCNTADTWKP_A': { 8: np.nan}, # number of adults working
         'FDSCAT4_A': { 8: np.nan}, # the higher the value higher food security
@@ -172,7 +168,7 @@ def print_hi(name):
     }
     selected_data.replace(mapping_dict, inplace=True)
     # replace with median
-    for column in ['AGEP_A','BMICAT_A','BMICAT_A']:
+    for column in ['AGEP_A','BMICAT_A','BMICAT_A',]:
         median_value = selected_data[column].median()
         df[column].fillna(median_value, inplace=True)
     # make categorical
