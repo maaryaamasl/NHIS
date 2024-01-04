@@ -13,7 +13,7 @@ def print_hi(name):
     print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
 
     ################################################################################
-    df = pd.read_csv("adult19.csv")
+    df = pd.read_csv("./adult19.csv")
 
     variable_list_df = pd.read_excel('NHIS variable list_Modified.xlsx')
     selected_columns = variable_list_df['variable(s)'].tolist()
@@ -44,22 +44,23 @@ def print_hi(name):
 
     ### NOTE: Finalize outcome ###
     print("\nFinalize outcome")
-    print("Number of rows:", len(selected_data))
+    print("Number of rows raw:", len(selected_data))
     missingCount = pd.DataFrame([selected_data.isna().sum().values], columns=selected_data.columns.values)
     print(missingCount[['PAIFRQ3M_A','PAIAMNT_A','PAIWKLM3M_A','PAIAFFM3M_A']])
-    outcomes = selected_data[['PAIFRQ3M_A','PAIAMNT_A','PAIWKLM3M_A','PAIAFFM3M_A']].fillna('Unknown')
-    for column in ['PAIFRQ3M_A','PAIAMNT_A','PAIWKLM3M_A','PAIAFFM3M_A']:
-        print(column,set(outcomes[column]))
-    selected_data.dropna(subset=['PAIFRQ3M_A','PAIAMNT_A','PAIWKLM3M_A','PAIAFFM3M_A'], inplace=True)
+    outcomes = selected_data[['PAIFRQ3M_A','PAIWKLM3M_A']].fillna('Unknown')
+    selected_data[['PAIWKLM3M_A']] = selected_data[['PAIWKLM3M_A']].fillna(0)
+    for column in ['PAIFRQ3M_A','PAIWKLM3M_A']:
+        print(outcomes[column].value_counts()) # column,set(outcomes[column]),
+    selected_data.dropna(subset=['PAIFRQ3M_A','PAIWKLM3M_A'], inplace=True) # 'PAIAMNT_A', ,'PAIAFFM3M_A'
     missingCount = pd.DataFrame([selected_data.isna().sum().values], columns=selected_data.columns.values)
-    print(missingCount[['PAIFRQ3M_A', 'PAIAMNT_A', 'PAIWKLM3M_A', 'PAIAFFM3M_A']])
+    print(missingCount[['PAIFRQ3M_A','PAIWKLM3M_A']])
     print("Number of rows after first drop NaN outcome:", len(selected_data))
     # Chronic pain = Pain reported on most days or every day during the previous 3 months.
     # PAIFRQ3M_A as our primary outcome:
     # 1 Never, 2 Some days, 3 Most days, 4 Every day, 7 Refused, 8 Not Ascertained, 9 Don't Know
     # Chronic Pain = 3 or 4 # No Chronic pain = 1 or 2 # And missing = 7, 8, or 9
     print("outcome convert to int")
-    selected_data.drop(['PAIAMNT_A', 'PAIAFFM3M_A'], axis=1, inplace=True)  # not needed
+    selected_data.drop(['PAIAMNT_A', 'PAIAFFM3M_A'], axis=1, inplace=True)  # not needed #############
     for column in ['PAIFRQ3M_A', 'PAIWKLM3M_A']:
         selected_data[column] = selected_data[column].astype(int)
     mapping_dict = {
@@ -73,14 +74,14 @@ def print_hi(name):
     outcomes = selected_data[['PAIFRQ3M_A', 'PAIWKLM3M_A']]
     for column in ['PAIFRQ3M_A', 'PAIWKLM3M_A']:
         print(column, set(outcomes[column]), selected_data[column].value_counts().values)
-    print("Number of rows:", len(selected_data))
+    print("Number of rows after 2nd map&dropna:", len(selected_data))
     # exit(-1)
     selected_data['Chronic_Pain'] = selected_data['PAIFRQ3M_A']
     # High-impact chronic pain = Chronic pain that limited life or work activities on most days or every day during the previous 3 months.
     # (combination of PAIFRQ3M_A and paiwklm3m_a) as secondary outcome
     # PAIFRQ3M_A = 3 or 4  AND. paiwklm3m_a = 3 or 4
     selected_data['High_impact_chronic_pain'] = (selected_data['PAIFRQ3M_A'] == 1) & (selected_data['PAIWKLM3M_A'] == 1)
-    selected_data.drop(['PAIFRQ3M_A', 'PAIWKLM3M_A'], axis=1, inplace=True)
+    selected_data.drop(['PAIFRQ3M_A', 'PAIWKLM3M_A'], axis=1, inplace=True) # not needed #############
     mapping_dict = {'High_impact_chronic_pain': {True: 1, False: 0}}
     print("outcome map & dropna 2")
     selected_data.replace(mapping_dict, inplace=True)
@@ -90,11 +91,11 @@ def print_hi(name):
 
     ### NOTE: Missing ###
     missingCount = pd.DataFrame([selected_data.isna().sum().values], columns=selected_data.columns.values)
-    print("\nMissing Count Drop more than 30%: \n", missingCount)
+    print("\nMissing Count: \n", missingCount)
     len_data = selected_data.shape[0]
     print("selected_data", selected_data.shape)
-    missing30p = missingCount.loc[:, missingCount.apply(lambda s: s >= len_data*0.30).to_numpy().flatten()]
-    print("\n Missing 30 Plus:",missing30p.shape[1],"\n",missing30p)
+    missing30p = missingCount.loc[:, missingCount.apply(lambda s: s >= (len_data*0.30)).to_numpy().flatten()]
+    print("\n Missing 30% Plus:",missing30p.shape[1],"\n",missing30p)
     selected_columns = [x for x in selected_data.columns if x not in missing30p.columns]
     selected_data = selected_data[selected_columns]
     missing30m = missingCount.loc[:, missingCount.apply(lambda s: s < len_data * 0.30).to_numpy().flatten()]
@@ -205,11 +206,11 @@ def print_hi(name):
     # exit(-1)
 
     # Imputation # replace with median
-    for column in ['AGEP_A', 'PHSTAT_A', 'ANXEV_A', 'DEPEV_A', 'BMICAT_A', 'ANXFREQ_A', 'ANXMED_A', 'ANXLEVEL_A', 'DEPFREQ_A', 'DEPMED_A', 'PHQCAT_A',
+    for column in ['AGEP_A', 'PHSTAT_A', 'ANXEV_A', 'DEPEV_A', 'BMICAT_A', 'ANXFREQ_A', 'ANXMED_A',  'DEPFREQ_A', 'DEPMED_A', 'PHQCAT_A',
                    'GADCAT_A', 'SMKCIGST_A', 'FAMINCTC_A', 'POVRATTC_A', 'INCGRP_A', 'RATCAT_A', 'EDUC_A', 'MAXEDUC_A', 'NOTCOV_A', 'MEDICARE_A', 'MEDICAID_A',
                    'PRIVATE_A', 'CHIP_A', 'OTHPUB_A', 'OTHGOV_A', 'MILITARY_A', 'HICOV_A', 'PAYBLL12M_A', 'PAYWORRY_A', 'MEDDL12M_A','RXSK12M_A','RXLS12M_A',
                    'RXDL12M_A', 'RXDG12M_A', 'MHTHDLY_A', 'MHTHND_A', 'EMPWRKLSWK_A', 'PCNTADTWKP_A' ,'FDSCAT4_A' ,'HOUYRSLIV_A', 'HOUTENURE_A',
-                   'PAIBACK3M_A','PAIULMB3M_A','PAILLMB3M_A', 'PAIHDFC3M_A', 'PAIAPG3M_A', 'PAITOOTH3M_A', 'OPD12M_A']:
+                    'OPD12M_A']: # 'ANXLEVEL_A', 'PAIBACK3M_A','PAIULMB3M_A', 'PAILLMB3M_A', 'PAIHDFC3M_A', 'PAIAPG3M_A', 'PAITOOTH3M_A'
         median_value = selected_data[column].median()
         selected_data[column].fillna(median_value, inplace=True)
 
