@@ -31,7 +31,7 @@ print('cleaned_data: ',cleaned_data.shape)
 outcomes = ['Chronic_Pain', 'High_impact_chronic_pain']
 for column in outcomes:
     print(column, set(cleaned_data[column]), cleaned_data[column].value_counts().values)
-outcome = ['Chronic_Pain'] # 'Chronic_Pain', 'High_impact_chronic_pain'
+outcome = ['High_impact_chronic_pain'] # 'Chronic_Pain', 'High_impact_chronic_pain'
 drop_col = [x for x in outcomes if x not in outcome]
 print("Outcome:",outcome," \nDropped_col:",drop_col)
 cleaned_data.drop(drop_col, axis=1, inplace=True) # 'High_impact_chronic_pain'
@@ -78,12 +78,12 @@ print('type [0]: ', type(shap_values[0]))
 
 print("write shap_values")
 for i in range(len(shap_values)):
-    np.savetxt("./shap1/shap_"+str(i)+".csv", shap_values[i])
-np.savetxt("./shap1/shape.csv",np.array([len(shap_values)]))
+    np.savetxt("./shap2/shap_"+str(i)+".csv", shap_values[i])
+np.savetxt("./shap2/shape.csv",np.array([len(shap_values)]))
 
 column_names = X.columns.values
 print(column_names)
-pd.DataFrame(column_names, columns=['Column Names']).to_csv('./shap1/columns.csv', index=False)
+pd.DataFrame(column_names, columns=['Column Names']).to_csv('./shap2/columns.csv', index=False)
 
 exit()
 
