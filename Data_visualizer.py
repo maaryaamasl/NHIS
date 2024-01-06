@@ -1,52 +1,52 @@
 import pandas as pd
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+# outcome = "Chronic_Pain" ### size
+outcome = "High_impact_chronic_pain"
+sub_folder = 'shap1'
+if outcome == "High_impact_chronic_pain": sub_folder = 'shap2'
+print("outcome: ",outcome)
 
 variable_list_df = pd.read_excel('NHIS variable list_Modified.xlsx')
 selected_columns = variable_list_df['variable(s)'].tolist()
 # description # category
 column_desc = dict(zip(variable_list_df['variable(s)'].str.upper(),variable_list_df['description']))
 column_cat = dict(zip(variable_list_df['variable(s)'].str.upper(), variable_list_df['category']))
-print(column_desc)
-print(column_cat)
+print("column_desc ",len(column_desc), column_desc)
+print("column_cat ",len(column_cat), column_cat)
+feature_names = pd.read_csv('./'+sub_folder+'/columns.csv')['Column Names'].values
+print("feature_names ", len(feature_names), feature_names )
 
-feature_names = pd.read_csv('./shap/columns.csv')['Column Names'].values
-print(feature_names )
-
-
-arr_shape = np.loadtxt("./shap/shape.csv")
+arr_shape = np.loadtxt('./'+sub_folder+'/shape.csv')
 shap_values = [ [] for i in range(int(arr_shape))]
 for i in range(int(arr_shape)):
-    shap_values[i] = np.loadtxt("./shap/shap_"+str(i)+".csv")
-
+    shap_values[i] = np.loadtxt('./'+sub_folder+'/shap_'+str(i)+".csv")
 print('\nD1 Classes:',len(shap_values),'\nD2 samples:', len(shap_values[0]))#,'\nD3 Columns/features:',len(shap_values[0][0]),'\nvalue:',shap_values[0][0][0])
 print('type: ',type(shap_values))
 print('type [0]: ', type(shap_values[0]))
-
 average_shap_values = np.mean(np.abs(shap_values), axis=0)
-
-plt.barh(feature_names, average_shap_values, color='skyblue')
-plt.xlabel('Average SHAP Value Magnitude')
-plt.title('Average SHAP Values for Each Feature')
-# plt.show()
-plt.savefig('average_shap_values_plot.png')
+print("average_shap_values shape", average_shap_values.shape)
 
 df = pd.DataFrame(average_shap_values, columns=['values'],index=feature_names)
-print(df.head(),"\n",str(list(df.index)))
-
+print(df.head(),"\n",str(list(df.index)),"\n", len(list(df.index)),"\n")
 df[['label','cat','color']] = np.nan
-df['label'] = df.index.map(column_desc)
-df['cat'] = df.index.map(column_cat)
+df["inx"]=df.index
+df['label'] = df["inx"].str.split('__', expand=True).apply(lambda x: f"{column_desc.get(x[0], '')} [{x[0]}] ({x[1]})", axis=1)#[0].map(column_desc)
+# df['label'] = df['label'].str.replace('(None)', '')
+df['cat'] = df["inx"].str.split('__', expand=True)[0].map(column_cat)
 print(set(df['cat'].unique()))
 df['color'] = df.cat.map({'risk factor':1, 'covariate':2, 'filter':3, 'risk factor and moderator':4, 'SES':5 })
 df['color_label'] = df['cat']
 df = df.sort_values(by='values', ascending=False, )
-print(df.head(2),"\n")
+print(df.head(75),"\n")
 # df['label'] = df['label'].str.replace("  "," ").replace("\n"," ").replace("\t"," ")
-palette = sns.color_palette("bright", 10) # pastel
 
+palette = sns.color_palette("bright", 10) # pastel
 palette = {"risk factor": palette[2], "covariate": palette[3], "filter": palette[0],
            "risk factor and moderator": palette[9] , 'SES': palette[5]}  # 7 grey 5 dark red
 hue_order = ["risk factor", "covariate", "filter", "risk factor and moderator", "SES"]
@@ -70,7 +70,7 @@ for i in range(0, df_filtered.shape[0], 51):
 
     partial_df = df_filtered.iloc[i:i + 50].copy()
     print("partial_df: ", partial_df.shape)
-    plt.figure(figsize=(600 / my_dpi, (2000 / my_dpi) * ((partial_df.shape[0] + 10) / (51 + 10))), dpi=my_dpi)
+    plt.figure(figsize=(900 / my_dpi, (2000 / my_dpi) * ((partial_df.shape[0] + 10) / (51 + 10))), dpi=my_dpi) ### size
     # sns.set(style="ticks")
     sns.set_style("darkgrid", {"axes.facecolor": ".9"})
     # sns.set_context("paper")
@@ -98,7 +98,7 @@ for i in range(0, df_filtered.shape[0], 51):
 
     print("write")
     plt.subplots_adjust(left=0.01, right=0.9, top=0.9, bottom=0.1)  # right=0.9, top=0.9, bottom=0.1
-    plt.savefig( "Figs\\" + "Abs-" + str(i) + '.svg', bbox_inches="tight",
+    plt.savefig( "Figs\\" +outcome+ "-Abs-" + str(i) + '.svg', bbox_inches="tight",
                 pad_inches=0.3, format='svg')  # facecolor='y', , transparent=True, dpi=200 , format='eps'
     # plt.savefig(dataLocation + "Figs/" + "Abs-" + str(i), bbox_inches="tight",
     #             pad_inches=0.3)
