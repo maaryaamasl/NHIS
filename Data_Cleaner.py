@@ -215,7 +215,10 @@ def print_hi(name):
         selected_data[column].fillna(median_value, inplace=True)
 
     # Drop Rows with missing
+    print("no drop sex", len(selected_data))
     selected_data.dropna(subset=['SEX_A'], inplace=True)
+    print("drop sex", len(selected_data))
+
 
     # Make categorical
     for column in ['REGION', 'ORIENT_A', 'MARITAL_A', 'RACEALLP_A', 'HISPALLP_A',]:
