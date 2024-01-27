@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
+import re
 
 outcome = "Chronic_Pain" ### size
 # outcome = "High_impact_chronic_pain"
@@ -14,7 +15,9 @@ for outcome in ["Chronic_Pain","High_impact_chronic_pain"]:
     print("outcome: ",outcome)
 
     variable_list_df = pd.read_excel('NHIS variable list_Modified.xlsx')
-    variable_list_df = variable_list_df[~variable_list_df['category'].isin(['nan', 'filter'])] # drop filter
+    variable_list_df = variable_list_df[~variable_list_df['category'].isin(['nan', 'filter',np.nan])] # drop filter
+    # variable_list_df['category'] = variable_list_df['category'].apply(lambda x: x.capitalize() if isinstance(x, str) else x)
+    variable_list_df['category'] = variable_list_df['category'].apply(str.title)
     selected_columns = variable_list_df['variable(s)'].tolist()
     # description # category
     column_desc = dict(zip(variable_list_df['variable(s)'].str.upper(),variable_list_df['description']))
@@ -39,7 +42,7 @@ for outcome in ["Chronic_Pain","High_impact_chronic_pain"]:
     print(df.head(),"\n",str(list(df.index)),"\n", len(list(df.index)),"\n")
     df[['label','cat','color']] = np.nan
     df["inx"]=df.index
-    df['label'] = df["inx"].str.split('__', expand=True).apply(lambda x: f"{column_desc.get(x[0], '')} [{x[0]}] ({x[1]})", axis=1)#[0].map(column_desc)
+    df['label'] = df["inx"].str.split('__', expand=True).apply(lambda x: f"{column_desc.get(x[0], '')} [{(str(x[0]).capitalize())}] ({(str(x[1]).capitalize())})", axis=1)#[0].map(column_desc)
     # df['label'] = df['label'].str.replace('(None)', '')
     df['cat'] = df["inx"].str.split('__', expand=True)[0].map(column_cat)
     print(set(df['cat'].unique()))
@@ -51,15 +54,27 @@ for outcome in ["Chronic_Pain","High_impact_chronic_pain"]:
     # df['label'] = df['label'].str.replace("  "," ").replace("\n"," ").replace("\t"," ")
 
     palette = sns.color_palette("bright", 10) # pastel
-    palette = {"Geographic": palette[2], "Socioeconomic Position": palette[3], "primary outcome": palette[0],
+    palette = {"Geographic": palette[2], "Socioeconomic Position": palette[3], "Primary Outcome": palette[0],
                "Demographic": palette[9] , 'Physical Health': palette[5], 'Mental Health': palette[7]}  # 7 grey 5 dark red
-    hue_order = ['Geographic', 'Socioeconomic Position', 'primary outcome', 'Demographic', 'Physical Health', 'Mental Health']
+    hue_order = ['Geographic', 'Socioeconomic Position', 'Primary Outcome', 'Demographic', 'Physical Health', 'Mental Health']
 
     df_filtered = df.copy()
     df_filtered['index_df'] = df.index
     df_filtered['values'] = df_filtered['values'].abs()
     df_filtered = df_filtered.sort_values(by='values', ascending=False).reset_index(drop=True)
     df_filtered['label']= df_filtered['label'].apply(lambda x: x.capitalize() if isinstance(x, str) else x)
+    df_filtered['label']= (df_filtered['label']
+                           .apply(lambda x: x.replace(" (none)","")) #.replace(r"\(none\)", "", regex=True)
+                           .replace(r"nh ", "non-hispanic ", regex=True) #.replace("nh ", "Non-Hispanic")
+                           .apply(lambda x: re.sub(r'\[.*?\]', '', x))
+                           .apply(lambda x: x.replace("  "," "))
+                           .apply(lambda x: x.replace("(gad)", ""))  #
+                           .apply(lambda x: x.replace("(phq)", ""))#
+                           .apply(lambda x: x.replace("Medicaid recode", "Medicaid"))  #
+                           .apply(lambda x: x.replace("(neither)", "(not married or living with a partner as an unmarried)")) #
+                           .apply(lambda x: x.strip())
+                           )
+    print("df_filtered[['label']].head(): ", df_filtered[['label']].head())
     # df_filtered['label'] = df_filtered['label'].apply(lambda x: x.replace("Ldl","LDL").replace(" a1c "," A1C ")
     #                                                   .replace("+instructional+w","+w").replace("(not employed)","- not employed")
     #                                                   .replace("Hdl", "HDL")
