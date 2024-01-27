@@ -15,9 +15,9 @@ for outcome in ["Chronic_Pain","High_impact_chronic_pain"]:
     print("outcome: ",outcome)
 
     variable_list_df = pd.read_excel('NHIS variable list_Modified.xlsx')
-    variable_list_df = variable_list_df[~variable_list_df['category'].isin(['nan', 'filter',np.nan])] # drop filter
-    # variable_list_df['category'] = variable_list_df['category'].apply(lambda x: x.capitalize() if isinstance(x, str) else x)
-    variable_list_df['category'] = variable_list_df['category'].apply(str.title)
+    # variable_list_df = variable_list_df[~variable_list_df['category'].isin(['nan', 'filter',np.nan])] # drop filter
+    variable_list_df['category'] = variable_list_df['category'].apply(lambda x: x.title() if isinstance(x, str) else x)
+    # variable_list_df['category'] = variable_list_df['category'].apply(str.title)
     selected_columns = variable_list_df['variable(s)'].tolist()
     # description # category
     column_desc = dict(zip(variable_list_df['variable(s)'].str.upper(),variable_list_df['description']))
@@ -45,7 +45,10 @@ for outcome in ["Chronic_Pain","High_impact_chronic_pain"]:
     df['label'] = df["inx"].str.split('__', expand=True).apply(lambda x: f"{column_desc.get(x[0], '')} [{(str(x[0]).capitalize())}] ({(str(x[1]).capitalize())})", axis=1)#[0].map(column_desc)
     # df['label'] = df['label'].str.replace('(None)', '')
     df['cat'] = df["inx"].str.split('__', expand=True)[0].map(column_cat)
-    print(set(df['cat'].unique()))
+    df = df[~df['cat'].isin(['nan', 'Filter', np.nan])]  # drop filter
+    df = df[~df['cat'].isin(['nan', 'Filter', np.nan])]
+    df = df[~df["inx"].isin(['MARITAL_A__9'])]
+    print("set(df['cat'].unique())", set(df['cat'].unique()))
     df['color'] = df.cat.map({'risk factor':1, 'covariate':2, 'filter':3, 'risk factor and moderator':4, 'SES':5 })
     df['color_label'] = df['cat']
     df = df.sort_values(by='values', ascending=False, )
@@ -71,6 +74,7 @@ for outcome in ["Chronic_Pain","High_impact_chronic_pain"]:
                            .apply(lambda x: x.replace("(gad)", ""))  #
                            .apply(lambda x: x.replace("(phq)", ""))#
                            .apply(lambda x: x.replace("Medicaid recode", "Medicaid"))  #
+                           .apply(lambda x: x.replace(" recode", ""))
                            .apply(lambda x: x.replace("(neither)", "(not married or living with a partner as an unmarried)")) #
                            .apply(lambda x: x.strip())
                            )
