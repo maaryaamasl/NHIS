@@ -22,6 +22,10 @@ from xgboost import XGBClassifier
 # from lightgbm import LGBMClassifier
 
 
+
+shap_reason = "Which-Var-Which-feature"
+
+
 print("\ncleaned_data")
 cleaned_data = pd.read_csv('Cleaned_data_2019.csv')
 for column in cleaned_data.columns:
@@ -110,8 +114,8 @@ print('type [0]: ', type(shap_values[0]))
 
 print("write shap_values")
 for i in range(len(shap_values)):
-    np.savetxt("./shap2/shap_"+str(i)+".csv", shap_values[i])
-np.savetxt("./shap2/shape.csv",np.array([len(shap_values)]))
+    np.savetxt("./shap-"+shap_reason+"/shap_"+str(i)+".csv", shap_values[i])
+np.savetxt("./shap-"+shap_reason+"/shape.csv",np.array([len(shap_values)]))
 
 column_names = X.columns.values
 print(column_names)

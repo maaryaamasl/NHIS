@@ -205,6 +205,18 @@ def print_hi(name):
         # print(column, set(selected_data[column]))
     # exit(-1)
 
+    print("######### Before categorization###########")
+    def get_count_and_percentage(column):
+        count = column.value_counts()
+        percentage = column.value_counts(normalize=True) * 100
+        result = pd.DataFrame({'Count': count, 'Percentage': percentage})
+        return result
+
+    for col in selected_data.columns:
+        result = get_count_and_percentage(selected_data[col])
+        print(f"=== {col} ===")
+        print(result)
+        print("\n")
     # Imputation # replace with median
     for column in ['AGEP_A', 'PHSTAT_A', 'ANXEV_A', 'DEPEV_A', 'BMICAT_A', 'ANXFREQ_A', 'ANXMED_A',  'DEPFREQ_A', 'DEPMED_A', 'PHQCAT_A',
                    'GADCAT_A', 'SMKCIGST_A', 'FAMINCTC_A', 'POVRATTC_A', 'INCGRP_A', 'RATCAT_A', 'EDUC_A', 'MAXEDUC_A', 'NOTCOV_A', 'MEDICARE_A', 'MEDICAID_A',
@@ -232,6 +244,20 @@ def print_hi(name):
 
     print("\nWrite to file")
     selected_data.to_csv('Cleaned_data_2019.csv', index=False, header=True)
+    print(selected_data.describe())
+
+    print("######### After categorization###########")
+    def get_count_and_percentage(column):
+        count = column.value_counts()
+        percentage = column.value_counts(normalize=True) * 100
+        result = pd.DataFrame({'Count': count, 'Percentage': percentage})
+        return result
+
+    for col in selected_data.columns:
+        result = get_count_and_percentage(selected_data[col])
+        print(f"=== {col} ===")
+        print(result)
+        print("\n")
     ################################################################################
 
 
