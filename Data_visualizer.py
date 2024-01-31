@@ -57,8 +57,8 @@ for outcome in ["Chronic_Pain","High_impact_chronic_pain"]:
     # df['label'] = df['label'].str.replace("  "," ").replace("\n"," ").replace("\t"," ")
 
     palette = sns.color_palette("bright", 10) # pastel
-    palette = {"Geographic": palette[2], "Socioeconomic Position": palette[3], "Primary Outcome": palette[0],
-               "Demographic": palette[9] , 'Physical Health': palette[5], 'Mental Health': palette[7]}  # 7 grey 5 dark red
+    palette = {"Geographic": palette[1], "Socioeconomic Position": palette[3], "Primary Outcome": palette[0],
+               "Demographic": palette[9] , 'Physical Health': palette[4], 'Mental Health': palette[2]}  # 7 grey 5 dark red
     hue_order = ['Geographic', 'Socioeconomic Position', 'Primary Outcome', 'Demographic', 'Physical Health', 'Mental Health']
 
     df_filtered = df.copy()
@@ -75,7 +75,23 @@ for outcome in ["Chronic_Pain","High_impact_chronic_pain"]:
                            .apply(lambda x: x.replace("(phq)", ""))#
                            .apply(lambda x: x.replace("Medicaid recode", "Medicaid"))  #
                            .apply(lambda x: x.replace(" recode", ""))
-                           .apply(lambda x: x.replace("(neither)", "(not married or living with a partner as an unmarried)")) #
+                           .apply(lambda x: x.replace("(neither)", "(not married or living with a partner as an unmarried)"))
+                           .apply(lambda x: x.replace("Get sik", "Get sick")) #
+                           .apply(lambda x: x.replace("or living with a partner as an unmarried", "or living with a partner and unmarried"))
+                           .apply(lambda x: x.replace("Us ", "US "))
+                           .apply(lambda x: x.replace("gaylesbian", "gay or lesbian"))
+                           .apply(lambda x: x.replace("chip", "CHIP"))
+                           .apply(lambda x: x.replace("Other government program", "Other government insurance program"))
+                           .apply(lambda x: x.replace("non-hispanic white", "Non-Hispanic White"))
+                           .apply(lambda x: x.replace("non-hispanic black/african-american", "Non-Hispanic Black/African-American"))
+                           .apply(lambda x: x.replace("black/african-american", "Black/African-American"))
+                           .apply(lambda x: x.replace("white", "White"))
+                           .apply(lambda x: x.replace("asian", "Asian"))
+                           .apply(lambda x: x.replace("non-hispanic asian", "Non-Hispanic Asian"))
+                           .apply(lambda x: x.replace("non-hispanic Asian", "Non-Hispanic Asian"))
+                           .apply(lambda x: x.replace("non-hispanic aian", "Non-Hispanic Aian"))
+                           .apply(lambda x: x.replace("aian", "Aian"))
+                           .apply(lambda x: x.replace("hispanic", "Hispanic"))
                            .apply(lambda x: x.strip())
                            )
     print("df_filtered[['label']].head(): ", df_filtered[['label']].head())
