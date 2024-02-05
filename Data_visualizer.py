@@ -34,8 +34,10 @@ for outcome in ["Chronic_Pain","High_impact_chronic_pain"]:
 
     arr_shape = np.loadtxt('./'+sub_folder+'/shape.csv')
     shap_values = [ [] for i in range(int(arr_shape))]
+    print("load")
     for i in range(int(arr_shape)):
         shap_values[i] = np.loadtxt('./'+sub_folder+'/shap_'+str(i)+".csv")
+    print("loaded")
     print('\nD1 Classes:',len(shap_values),'\nD2 samples:', len(shap_values[0]))#,'\nD3 Columns/features:',len(shap_values[0][0]),'\nvalue:',shap_values[0][0][0])
     print('type: ',type(shap_values))
     print('type [0]: ', type(shap_values[0]))
