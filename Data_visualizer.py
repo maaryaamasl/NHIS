@@ -7,12 +7,16 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import re
 
-outcome = "Chronic_Pain" ### size
+included = "SEX_A-0"
+outcome = ""
 # outcome = "High_impact_chronic_pain"
 for outcome in ["Chronic_Pain","High_impact_chronic_pain"]:
-    sub_folder = 'shap1'
-    if outcome == "High_impact_chronic_pain": sub_folder = 'shap2'
-    print("outcome: ",outcome)
+    # sub_folder = 'shap1'
+    sub_folder ="shap-Chronic_Pain-"+included
+    if outcome == "High_impact_chronic_pain":
+        # sub_folder = 'shap2'
+        sub_folder = "shap-High_impact_chronic_pain-" + included
+    print("outcome: ",outcome,sub_folder)
 
     variable_list_df = pd.read_excel('NHIS variable list_Modified.xlsx')
     # variable_list_df = variable_list_df[~variable_list_df['category'].isin(['nan', 'filter',np.nan])] # drop filter
@@ -135,9 +139,11 @@ for outcome in ["Chronic_Pain","High_impact_chronic_pain"]:
         # ax.set_ylabel() # position=(x, y)
         # ax.tick_params(axis='y', rotation=90)
 
-        print("write")
+        print("write ######################")
+        print("Figs\\" +outcome+"-"+included+ "-Abs-" + str(i) + '.svg',"\n\n\n")
         plt.subplots_adjust(left=0.01, right=0.9, top=0.9, bottom=0.1)  # right=0.9, top=0.9, bottom=0.1
-        plt.savefig( "Figs\\" +outcome+ "-Abs-" + str(i) + '.svg', bbox_inches="tight",
+        # plt.show()
+        plt.savefig( "Figs\\" +outcome+"-"+included+ "-Abs-" + str(i) + '.svg', bbox_inches="tight",
                     pad_inches=0.3, format='svg')  # facecolor='y', , transparent=True, dpi=200 , format='eps'
         # plt.savefig(dataLocation + "Figs/" + "Abs-" + str(i), bbox_inches="tight",
         #             pad_inches=0.3)
