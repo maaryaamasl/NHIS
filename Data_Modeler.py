@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score, classification_report
 from sklearn.metrics import roc_auc_score
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
-import pycaret as pc
+# import pycaret as pc
 import tpot
 from tpot import TPOTClassifier
 import h2o
@@ -23,23 +23,29 @@ from xgboost import XGBClassifier
 
 
 
-shap_reason = "Which-Var-Which-feature"
-
-
 print("\ncleaned_data")
 cleaned_data = pd.read_csv('Cleaned_data_2019.csv')
-for column in cleaned_data.columns:
-    print(column, set(cleaned_data[column]))
+
 print('cleaned_data: ',cleaned_data.shape)
 # Chronic_Pain {0, 1}
 # High_impact_chronic_pain {0, 1}
 outcomes = ['Chronic_Pain', 'High_impact_chronic_pain']
 for column in outcomes:
     print(column, set(cleaned_data[column]), cleaned_data[column].value_counts().values)
-outcome = ['Chronic_Pain'] # 'Chronic_Pain', 'High_impact_chronic_pain'
+# Outcome <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< VARIABLES & OUTCOMES
+outcome = ['High_impact_chronic_pain'] # 'Chronic_Pain', 'High_impact_chronic_pain'
+# Filter
+filtering="SEX_A"
+val = 1
+cleaned_data[filtering] = (cleaned_data[filtering] == val) # & (selected_data['PAIWKLM3M_A'] == 1)
+cleaned_data.drop([filtering], axis=1, inplace=True)
+shap_reason = "High_impact_chronic_pain-SEX_A-1"
+
 drop_col = [x for x in outcomes if x not in outcome]
 print("Outcome:",outcome," \nDropped_col:",drop_col)
 cleaned_data.drop(drop_col, axis=1, inplace=True) # 'High_impact_chronic_pain'
+for column in cleaned_data.columns:
+    print(column, set(cleaned_data[column]))
 
 # Modeling
 print("\nModeling")
@@ -57,6 +63,48 @@ x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_
 # Hyperopt-Sklearn
 # Auto-ViML
 # MLBox
+
+
+
+print("XGboost") ############################### <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Chosen model
+clf = XGBClassifier()
+clf.fit(X, Y)
+y_pred_clf = clf.predict(X)
+accuracy = accuracy_score(Y, y_pred_clf)
+auc = roc_auc_score(Y, y_pred_clf)
+print("Accuracy (XGBoost Classifier):",outcome, accuracy, auc)
+# ['High_impact_chronic_pain'] 0.9716733806509368 0.8425071151403117
+# ['High_impact_chronic_pain'] 0.9234335038363172 0.6440411875664475
+# ['Chronic_Pain'] 0.8935673636421766 0.7915005806795882
+# ['Chronic_Pain'] 0.835485933503836 0.66474041732368
+# exit(-1)
+
+def custom_predict(X):
+    return clf.predict(X)
+kmeans_k =100 # 100
+rows_devideby_to_use = 1 # 1
+explainer = shap.KernelExplainer(custom_predict, shap.kmeans(X.values, kmeans_k))
+number_of_rows = X.values.shape[0]
+random_indices = np.random.choice(number_of_rows, size=number_of_rows//rows_devideby_to_use, replace=False)
+random_rows = X.iloc[random_indices] #.values
+print("explainer.shap_values")
+shap_values = explainer.shap_values(random_rows)
+
+print('training-ish size:', len(random_rows.values), len(random_rows.values[0]))
+print('\nD1 Classes:', len(shap_values), '\nD2 samples:', len(shap_values[0]))#, '\nD3 Columns/features:', len(shap_values[0][0])) # , '\nvalue:', shap_values[0][0][0]
+print('type: ',type(shap_values))
+print('type [0]: ', type(shap_values[0]))
+
+print("write shap_values")
+for i in range(len(shap_values)):
+    np.savetxt("./shap-"+shap_reason+"/shap_"+str(i)+".csv", shap_values[i])
+np.savetxt("./shap-"+shap_reason+"/shape.csv",np.array([len(shap_values)]))
+
+column_names = X.columns.values
+print(column_names)
+pd.DataFrame(column_names, columns=['Column Names']).to_csv("./shap-"+shap_reason+'/columns.csv', index=False)
+
+exit()
 
 print("h2o")  ############################### <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 h2o.init(max_mem_size="8G")
@@ -82,46 +130,6 @@ for model_id in leaderboard['model_id']:
     print(f"Accuracy for {model_id}: {accuracy}")
 print(outcome)
 exit(1)
-
-print("XGboost") ############################### <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Chosen model
-clf = XGBClassifier()
-clf.fit(X, Y)
-y_pred_clf = clf.predict(X)
-accuracy = accuracy_score(Y, y_pred_clf)
-auc = roc_auc_score(Y, y_pred_clf)
-print("Accuracy (XGBoost Classifier):",outcome, accuracy, auc)
-# ['High_impact_chronic_pain'] 0.9716733806509368 0.8425071151403117
-# ['High_impact_chronic_pain'] 0.9234335038363172 0.6440411875664475
-# ['Chronic_Pain'] 0.8935673636421766 0.7915005806795882
-# ['Chronic_Pain'] 0.835485933503836 0.66474041732368
-exit(-1)
-
-def custom_predict(X):
-    return clf.predict(X)
-kmeans_k =100 # 100
-rows_devideby_to_use = 1 # 1
-explainer = shap.KernelExplainer(custom_predict, shap.kmeans(X.values, kmeans_k))
-number_of_rows = X.values.shape[0]
-random_indices = np.random.choice(number_of_rows, size=number_of_rows//rows_devideby_to_use, replace=False)
-random_rows = X.iloc[random_indices] #.values
-print("explainer.shap_values")
-shap_values = explainer.shap_values(random_rows)
-
-print('training-ish size:', len(random_rows.values), len(random_rows.values[0]))
-print('\nD1 Classes:', len(shap_values), '\nD2 samples:', len(shap_values[0]))#, '\nD3 Columns/features:', len(shap_values[0][0])) # , '\nvalue:', shap_values[0][0][0]
-print('type: ',type(shap_values))
-print('type [0]: ', type(shap_values[0]))
-
-print("write shap_values")
-for i in range(len(shap_values)):
-    np.savetxt("./shap-"+shap_reason+"/shap_"+str(i)+".csv", shap_values[i])
-np.savetxt("./shap-"+shap_reason+"/shape.csv",np.array([len(shap_values)]))
-
-column_names = X.columns.values
-print(column_names)
-pd.DataFrame(column_names, columns=['Column Names']).to_csv('./shap2/columns.csv', index=False)
-
-exit()
 # deeplearning prediction progress: |██████████████████████████████████████████████| (done) 100%
 # Accuracy of the leader model: [[0.5534361954245438, 0.9229146381045116]]
 # model_id                                                accuracy       auc    logloss     aucpr    mean_per_class_error      rmse        mse
