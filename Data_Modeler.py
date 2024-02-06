@@ -33,19 +33,48 @@ outcomes = ['Chronic_Pain', 'High_impact_chronic_pain']
 for column in outcomes:
     print(column, set(cleaned_data[column]), cleaned_data[column].value_counts().values)
 # Outcome <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< VARIABLES & OUTCOMES
+print("######### Setting ########")
 outcome = ['High_impact_chronic_pain'] # 'Chronic_Pain', 'High_impact_chronic_pain'
-# Filter
 filtering="SEX_A"
 val = 1
-cleaned_data[filtering] = (cleaned_data[filtering] == val) # & (selected_data['PAIWKLM3M_A'] == 1)
+shap_reason = "shapRes-High_impact_chronic_pain-SEX_A-1"
+print(shap_reason,outcome,filtering,val)
+print("######### Filter ###########")
+print('cleaned_data: ',cleaned_data.shape)
+cleaned_data = cleaned_data[(cleaned_data[filtering] == val)] # & (selected_data['PAIWKLM3M_A'] == 1)
 cleaned_data.drop([filtering], axis=1, inplace=True)
-shap_reason = "High_impact_chronic_pain-SEX_A-1"
+print('cleaned_data: ',cleaned_data.shape)
 
 drop_col = [x for x in outcomes if x not in outcome]
 print("Outcome:",outcome," \nDropped_col:",drop_col)
 cleaned_data.drop(drop_col, axis=1, inplace=True) # 'High_impact_chronic_pain'
 for column in cleaned_data.columns:
-    print(column, set(cleaned_data[column]))
+    if filtering in column:
+        print(column, set(cleaned_data[column]))
+exit()
+
+
+# print("######### After categorization ###########")
+
+# drop_col = [x for x in outcomes if x not in outcome]
+# print("Outcome:",outcome," \nDropped_col:",drop_col)
+# cleaned_data.drop(drop_col, axis=1, inplace=True) # 'High_impact_chronic_pain'
+# for column in cleaned_data.columns:
+#     print(column, set(cleaned_data[column]))
+
+# def get_count_and_percentage(column):
+#     count = column.value_counts()
+#     percentage = column.value_counts(normalize=True) * 100
+#     result = pd.DataFrame({'Count': count, 'Percentage': percentage})
+#     return result
+#
+# for col in cleaned_data.columns:
+#     result = get_count_and_percentage(cleaned_data[col])
+#     print(f"=== {col} ===")
+#     print(result)
+#     print("\n")
+#
+# print("Age mean:", cleaned_data["AGEP_A"].mean())
 
 # Modeling
 print("\nModeling")
@@ -97,12 +126,12 @@ print('type [0]: ', type(shap_values[0]))
 
 print("write shap_values")
 for i in range(len(shap_values)):
-    np.savetxt("./shap-"+shap_reason+"/shap_"+str(i)+".csv", shap_values[i])
-np.savetxt("./shap-"+shap_reason+"/shape.csv",np.array([len(shap_values)]))
+    np.savetxt("./"+shap_reason+"/shap_"+str(i)+".csv", shap_values[i])
+np.savetxt("./"+shap_reason+"/shape.csv",np.array([len(shap_values)]))
 
 column_names = X.columns.values
 print(column_names)
-pd.DataFrame(column_names, columns=['Column Names']).to_csv("./shap-"+shap_reason+'/columns.csv', index=False)
+pd.DataFrame(column_names, columns=['Column Names']).to_csv("./"+shap_reason+'/columns.csv', index=False)
 
 exit()
 
