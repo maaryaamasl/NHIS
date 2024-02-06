@@ -36,8 +36,8 @@ for column in outcomes:
 print("######### Setting ########")
 outcome = ['High_impact_chronic_pain'] # 'Chronic_Pain', 'High_impact_chronic_pain'
 filtering="SEX_A"
-val = 1
-shap_reason = "shapRes-High_impact_chronic_pain-SEX_A-1"
+val = 0
+shap_reason = "shapRes-High_impact_chronic_pain-SEX_A-0"
 print(shap_reason,outcome,filtering,val)
 print("######### Filter ###########")
 print('cleaned_data: ',cleaned_data.shape)
@@ -51,7 +51,7 @@ cleaned_data.drop(drop_col, axis=1, inplace=True) # 'High_impact_chronic_pain'
 for column in cleaned_data.columns:
     if filtering in column:
         print(column, set(cleaned_data[column]))
-exit()
+
 
 
 # print("######### After categorization ###########")
