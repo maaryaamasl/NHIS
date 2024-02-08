@@ -12,10 +12,10 @@ outcome = ""
 # outcome = "High_impact_chronic_pain"
 for outcome in ["Chronic_Pain","High_impact_chronic_pain"]:
     # sub_folder = 'shap1'
-    sub_folder ="shap-Chronic_Pain-"+included
+    sub_folder ="shapRes-Chronic_Pain-"+included
     if outcome == "High_impact_chronic_pain":
         # sub_folder = 'shap2'
-        sub_folder = "shap-High_impact_chronic_pain-" + included
+        sub_folder = "shapRes-High_impact_chronic_pain-" + included
     print("outcome: ",outcome,sub_folder)
 
     variable_list_df = pd.read_excel('NHIS variable list_Modified.xlsx')
@@ -142,10 +142,10 @@ for outcome in ["Chronic_Pain","High_impact_chronic_pain"]:
         # ax.tick_params(axis='y', rotation=90)
 
         print("write ######################")
-        print("Figs\\" +outcome+"-"+included+ "-Abs-" + str(i) + '.svg',"\n\n\n")
+        print("Fig\\" +outcome+"-"+included+ "-Abs-" + str(i) + '.svg',"\n\n\n")
         plt.subplots_adjust(left=0.01, right=0.9, top=0.9, bottom=0.1)  # right=0.9, top=0.9, bottom=0.1
         # plt.show()
-        plt.savefig( "Figs\\" +outcome+"-"+included+ "-Abs-" + str(i) + '.svg', bbox_inches="tight",
+        plt.savefig( "Fig\\" +outcome+"-"+included+ "-Abs-" + str(i) + '.svg', bbox_inches="tight",
                     pad_inches=0.3, format='svg')  # facecolor='y', , transparent=True, dpi=200 , format='eps'
         # plt.savefig(dataLocation + "Figs/" + "Abs-" + str(i), bbox_inches="tight",
         #             pad_inches=0.3)
