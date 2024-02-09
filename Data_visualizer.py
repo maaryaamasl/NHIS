@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import re
 
-included = "SEX_A-0"
+included = "SEX_A-1"
 outcome = ""
 # outcome = "High_impact_chronic_pain"
 for outcome in ["Chronic_Pain","High_impact_chronic_pain"]:
